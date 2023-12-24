@@ -25,12 +25,12 @@ A step-by-step series of examples that tell you how to get a development environ
    git clone https://github.com/s3341458/icp_hackathon
    ```
 
-2. ** Navigate to the Directory **
+2. **Navigate to the Directory**
    ```sh
    cd icp_hackathon
    ```
 
-3. ** Deploy **
+3. **Deploy**
    ```sh
    dfx deploy
    ```

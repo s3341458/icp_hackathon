@@ -1,6 +1,7 @@
 import Nat64 "mo:base/Nat64";
 import Principal "mo:base/Principal";
 import HashMap "mo:base/HashMap";
+import Bool "mo:base/Bool";
 import Ledger "canister:ledger";
 
 
@@ -13,8 +14,8 @@ shared(msg) actor class CashReturn() {
   public type AccountIdentifier = Blob;
 
   private func sendICP(recipient: Principal, amount: Nat64): async Bool {
-    let args = {
-      to = recipient;
+    let args : Ledger.TransferArgs = {
+      to = Principal.toLedgerAccount(recipient, null);
       fee = { e8s = 10_000}; // The transaction fee, specified in e8s (10,000 e8s = 0.0001 ICP)
       memo = 0;     // An optional memo for the transaction
       from_subaccount = null; // This can be set if you are using subaccounts
@@ -37,21 +38,21 @@ shared(msg) actor class CashReturn() {
       return currentPrice;
   };
 
-    public shared(msg) func setPrice(newPrice: Nat64) {
-        assert (owner == msg.caller);
-        currentPrice := newPrice;
-        // if the new price is lower than the old price,
-        // we need to refund the difference
-        for ((payer, amount) in ledger.entries()) {
-            if (amount >= newPrice) {
-                let refund = Nat64.sub(amount, newPrice);
-                if (refund > 0) {
-                    ledger.put(payer, newPrice);
-                    sendICP(payer, refund);
-                }
-            }
-        }
-    };
+  public shared(msg) func setPrice(newPrice: Nat64) {
+      assert (owner == msg.caller);
+      currentPrice := newPrice;
+      // if the new price is lower than the old price,
+      // we need to refund the difference
+      for ((payer, amount) in ledger.entries()) {
+          if (amount >= newPrice) {
+              let refund = Nat64.sub(amount, newPrice);
+              if (refund > 0) {
+                  ledger.put(payer, newPrice);
+                  ignore sendICP(payer, refund);
+              }
+          }
+      }
+  };
 
 }
 

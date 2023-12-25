@@ -1,7 +1,6 @@
 import Nat64 "mo:base/Nat64";
 import Principal "mo:base/Principal";
 import HashMap "mo:base/HashMap";
-
 import Ledger "canister:ledger";
 
 
@@ -10,6 +9,8 @@ shared(msg) actor class CashReturn() {
   private var ledger : HashMap.HashMap<Principal, Nat64> = HashMap.HashMap<Principal, Nat64>(100, Principal.equal, Principal.hash);
   private var currentPrice : Nat64 = 0;
   let owner = msg.caller;
+
+  public type AccountIdentifier = Blob;
 
   private func sendICP(recipient: Principal, amount: Nat64): async Bool {
     let args = {
